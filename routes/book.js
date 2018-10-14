@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const mongoose = require('mongoose')
+const passport = require('passport')
+require('../config/passport')(passport)
 const Book = require('../models/Book')
 
 /**
@@ -8,8 +9,7 @@ const Book = require('../models/Book')
  */
 router.get('/', function(req, res, next) {
   Book.find(function (err, books) {
-    if (err)
-      return next(err)
+    if (err) return next(err)
     res.json(books)
   })
 })
@@ -19,8 +19,7 @@ router.get('/', function(req, res, next) {
  */
 router.get('/:id', function(req, res, next) {
   Book.findById(req.params.id, function (err, post) {
-    if (err)
-      return next(err)
+    if (err) return next(err)
     res.json(post)
   })
 })
@@ -28,12 +27,20 @@ router.get('/:id', function(req, res, next) {
 /**
  * CREATE a new book
  */
-router.post('/', function(req, res, next) {
-  let book = new Book( req.body )
-  book.save(function (err) {
-    if (err) return next(err)
-    res.json(post)
-  })
+router.post('/', passport.authenticate('jwt', { sesion: false }), function(req, res, next) {
+  let token = getToken(req.headers)
+  if (token) {
+      Book.create(req.body, function (err, post) {
+        if (err) return next(err)
+        res.json(post)
+      })
+  }
+  else {
+    return res.status(403).send({
+      success: false,
+      message: 'Unauthorized.'
+    })
+  }
 })
 
 /**
@@ -41,8 +48,7 @@ router.post('/', function(req, res, next) {
  */
 router.put('/:id', function(req, res, next) {
   Book.findByIdAndUpdate({ id: req.params.id }, req.body, function (err, post) {
-    if (err)
-      return next(err)
+    if (err) return next(err)
     res.json(post)
   })
 })
@@ -52,8 +58,7 @@ router.put('/:id', function(req, res, next) {
  */
 router.delete('/:id', function(req, res, next) {
   Book.findByIdAndRemove(req.params.id, req.body, function (err, post) {
-    if (err)
-      return next(err)
+    if (err) return next(err)
     res.json(post)
   })
 })
