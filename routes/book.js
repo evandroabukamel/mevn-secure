@@ -5,6 +5,21 @@ require('../config/passport')(passport)
 const Book = require('../models/Book')
 
 /**
+ * GetToken function.
+ */
+const getToken = function(headers) {
+  if (headers && headers.authorization) {
+    let parted = headers.authorization.split(' ')
+    if (parted.length === 2)
+      return parted[1]
+    else
+      return null
+  }
+  else
+    return null
+}
+
+/**
  * GET all books.
  */
 router.get('/', function(req, res, next) {
@@ -46,11 +61,20 @@ router.post('/', passport.authenticate('jwt', { sesion: false }), function(req, 
 /**
  * UPDATE a book by ID
  */
-router.put('/:id', function(req, res, next) {
-  Book.findByIdAndUpdate({ id: req.params.id }, req.body, function (err, post) {
-    if (err) return next(err)
-    res.json(post)
-  })
+router.put('/:id', passport.authenticate('jwt', { sesion: false }), function(req, res, next) {
+  let token = getToken(req.headers)
+  if (token) {
+    Book.findByIdAndUpdate({ id: req.params.id }, req.body, function (err, post) {
+      if (err) return next(err)
+      res.json(post)
+    })
+  }
+  else {
+    return res.status(403).send({
+      success: false,
+      message: 'Unauthorized.'
+    })
+  }
 })
 
 /**
