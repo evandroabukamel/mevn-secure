@@ -40,7 +40,7 @@ router.post('/', function(req, res, next) {
  * UPDATE a book by ID
  */
 router.put('/:id', function(req, res, next) {
-  Book.findByIdAndUpdate({ id: req.params.id }, req.body, function (err, post) {
+  Book.findByIdAndUpdate({ _id: req.params.id }, req.body, function (err, post) {
     if (err)
       return next(err)
     res.json(post)
