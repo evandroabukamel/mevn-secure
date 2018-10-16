@@ -61,14 +61,6 @@ router.post('/', passport.authenticate('jwt', { sesion: false }), function(req, 
 /**
  * UPDATE a book by ID
  */
-<<<<<<< HEAD
-router.put('/:id', function(req, res, next) {
-  Book.findByIdAndUpdate({ _id: req.params.id }, req.body, function (err, post) {
-    if (err)
-      return next(err)
-    res.json(post)
-  })
-=======
 router.put('/:id', passport.authenticate('jwt', { sesion: false }), function(req, res, next) {
   let token = getToken(req.headers)
   if (token) {
@@ -83,7 +75,6 @@ router.put('/:id', passport.authenticate('jwt', { sesion: false }), function(req
       message: 'Unauthorized.'
     })
   }
->>>>>>> 96a3ab48d5e0c60b6bda18208c71d985f131e0da
 })
 
 /**
